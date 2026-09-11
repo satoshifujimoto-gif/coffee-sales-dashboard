@@ -2,8 +2,15 @@
 
 コーヒー関連商品(豆・ドリップ・ギフト・定期便)の売上データを可視化するダッシュボード。合計売上、月別推移、商品別・地域別ランキングを表示し、月/地域/カテゴリで絞り込みができます。
 
+## 公開ページ
+
+**https://satoshifujimoto-gif.github.io/coffee-sales-dashboard/**
+
+GitHub Pages上で `index.html` が同じフォルダのCSV3ファイルを読み込んで動作します(バックエンド不要)。
+
 ## ファイル構成
 
+- `index.html` — GitHub Pages公開用。同じフォルダのCSV3ファイルを直接fetchして表示する静的版。
 - `売上ダッシュボード.html` — スタンドアロン版。ダブルクリックでブラウザ表示できる単一HTMLファイル。`server.py` が起動していればPython API からデータを取得し、未起動なら内蔵データ(1〜3月分)にフォールバックします。CSVファイルをドラッグ&ドロップして追加することもできます。
 - `server.py` — 標準ライブラリのみで書かれたHTTPサーバー(pip install不要)。複数のCSVを結合して `/api/sales` にJSONで配信し、`server_dashboard.html` を `/` で配信します。
 - `server_dashboard.html` — サーバー配信専用のダッシュボード。常に `/api/sales` からデータを取得します。
