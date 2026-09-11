@@ -1,0 +1,1412 @@
+<title>コーヒー売上ダッシュボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plane:#f6f3ee;
+    --surface:#fffdf9;
+    --surface-2:#eee7da;
+    --ink:#241d16;
+    --ink-secondary:#6d6255;
+    --muted:#a2977f;
+    --border:rgba(36,29,22,0.11);
+    --accent:#1f6f66;
+    --accent-strong:#154d46;
+    --accent-wash:rgba(31,111,102,0.13);
+    --cat-food:#2a78d6;
+    --cat-gift:#eb6834;
+    --cat-goods:#1baf7a;
+    --cat-sub:#c98500;
+    --grid:#e2ddd0;
+    --axis:#c7bfae;
+    --on-accent:#fffdf9;
+    --shadow: 0 1px 2px rgba(36,29,22,0.06), 0 8px 24px -12px rgba(36,29,22,0.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --plane:#17130f;
+      --surface:#221c16;
+      --surface-2:#2c251d;
+      --ink:#f6f1e8;
+      --ink-secondary:#c9bda9;
+      --muted:#8d8271;
+      --border:rgba(255,255,255,0.11);
+      --accent:#49bdae;
+      --accent-strong:#63d1c2;
+      --accent-wash:rgba(73,189,174,0.18);
+      --cat-food:#3987e5;
+      --cat-gift:#d95926;
+      --cat-goods:#199e70;
+      --cat-sub:#e0a53c;
+      --grid:#31291f;
+      --axis:#463c2e;
+      --on-accent:#15120d;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --plane:#17130f;
+    --surface:#221c16;
+    --surface-2:#2c251d;
+    --ink:#f6f1e8;
+    --ink-secondary:#c9bda9;
+    --muted:#8d8271;
+    --border:rgba(255,255,255,0.11);
+    --accent:#49bdae;
+    --accent-strong:#63d1c2;
+    --accent-wash:rgba(73,189,174,0.18);
+    --cat-food:#3987e5;
+    --cat-gift:#d95926;
+    --cat-goods:#199e70;
+    --cat-sub:#e0a53c;
+    --grid:#31291f;
+    --axis:#463c2e;
+    --on-accent:#15120d;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--plane);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:1120px;
+    margin:0 auto;
+    padding:36px 28px 64px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+    border-bottom:1px solid var(--border);
+    padding-bottom:22px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:40px; height:40px; border-radius:10px;
+    background:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex-shrink:0;
+    box-shadow: var(--shadow);
+  }
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:.02em;
+    margin:0;
+    text-wrap:balance;
+  }
+  .brand p{
+    margin:2px 0 0;
+    font-size:13px;
+    color:var(--ink-secondary);
+  }
+  .meta{
+    text-align:right;
+    font-size:13px;
+    color:var(--ink-secondary);
+  }
+  .meta strong{ color:var(--ink); font-weight:700; }
+  .meta .period{
+    font-family:'Shippori Mincho', serif;
+    font-size:16px;
+    font-weight:600;
+    color:var(--ink);
+    display:block;
+    margin-bottom:2px;
+  }
+
+  /* ---------- Stat tiles ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  .stat-tile{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .stat-tile .label{
+    font-size:12.5px;
+    color:var(--ink-secondary);
+    letter-spacing:.02em;
+  }
+  .stat-tile .value{
+    font-size:28px;
+    font-weight:900;
+    letter-spacing:-0.01em;
+  }
+  .stat-tile.hero .value{ font-size:32px; color:var(--accent-strong); }
+  .stat-tile .sub{ font-size:12px; color:var(--muted); }
+  .api-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; font-weight:700; letter-spacing:.03em;
+    padding:3px 9px; border-radius:999px; margin-bottom:6px;
+    color:var(--accent-strong); background:var(--accent-wash);
+  }
+  .api-pill.offline{ color:var(--ink-secondary); background:var(--surface-2); }
+  .api-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); }
+  .api-pill.offline .dot{ background:var(--muted); }
+  .spark{ display:block; margin-top:2px; }
+  .spark path.line{ fill:none; stroke:var(--accent); stroke-width:2; }
+  .spark path.area{ fill:var(--accent); opacity:.12; stroke:none; }
+  .spark circle{ fill:var(--accent); stroke:var(--surface); stroke-width:2; }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px 24px 24px;
+    box-shadow:var(--shadow);
+  }
+  .card h2{
+    font-family:'Shippori Mincho', serif;
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 2px;
+  }
+  .card .card-sub{ font-size:12.5px; color:var(--ink-secondary); margin:0 0 18px; }
+
+  .row-2{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:20px;
+    align-items:stretch;
+  }
+
+  /* ---------- Quote banner ---------- */
+  .quote-banner{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent);
+    border-radius:12px;
+    padding:14px 18px;
+    box-shadow:var(--shadow);
+  }
+  .quote-mark{
+    font-family:'Shippori Mincho', serif;
+    font-size:34px;
+    color:var(--accent);
+    line-height:1;
+    flex-shrink:0;
+  }
+  .quote-body{ flex:1; min-width:0; }
+  .quote-text{
+    font-family:'Shippori Mincho', serif;
+    font-size:15.5px;
+    font-weight:600;
+    margin:0;
+    text-wrap:balance;
+  }
+  .quote-author{
+    margin:4px 0 0;
+    font-size:12.5px;
+    color:var(--ink-secondary);
+  }
+  .quote-actions{ display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .quote-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px;
+    border-radius:9px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--ink-secondary);
+    cursor:pointer;
+    font-size:15px;
+    transition:background .12s ease, color .12s ease;
+  }
+  .quote-btn:hover{ color:var(--ink); border-color:var(--accent); }
+  .quote-btn.speaking{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+
+  /* ---------- Filters ---------- */
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px 32px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 20px;
+    box-shadow:var(--shadow);
+  }
+  .filter-group{ display:flex; flex-direction:column; gap:9px; }
+  .filter-group .fg-label{
+    font-size:11px;
+    font-weight:700;
+    color:var(--muted);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font:inherit;
+    font-size:13px;
+    font-weight:500;
+    padding:6px 14px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--ink-secondary);
+    cursor:pointer;
+    transition:background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .chip:hover{ border-color:var(--accent); color:var(--ink); }
+  .chip.active{ background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:700; }
+  .chip.chip-all{ font-weight:700; }
+  .filter-status{
+    margin-left:auto;
+    align-self:center;
+    font-size:12.5px;
+    color:var(--ink-secondary);
+    white-space:nowrap;
+  }
+  .filter-status strong{ color:var(--ink); font-weight:700; }
+  .empty-note{
+    padding:28px 12px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13.5px;
+  }
+
+  /* ---------- Legend ---------- */
+  .legend{ display:flex; flex-wrap:wrap; gap:14px 20px; margin:0 0 6px; }
+  .legend .item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-secondary); }
+  .legend .swatch{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  /* ---------- Monthly chart ---------- */
+  .chart-shell{ position:relative; }
+  #monthlyChart{ width:100%; height:auto; overflow:visible; font-family:'Zen Kaku Gothic New', sans-serif; }
+  .bar-seg{ cursor:pointer; transition:opacity .12s ease; }
+  .bar-seg:hover{ opacity:.82; }
+  .month-total{ font-weight:900; font-size:14px; fill:var(--ink); }
+  .month-label{ font-size:12.5px; fill:var(--ink-secondary); }
+  .axis-tick{ font-size:11px; fill:var(--muted); }
+  .grid-line{ stroke:var(--grid); stroke-width:1; }
+
+  .tooltip{
+    position:absolute;
+    pointer-events:none;
+    background:var(--ink);
+    color:var(--plane);
+    font-size:12.5px;
+    padding:8px 11px;
+    border-radius:8px;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,.35);
+    transform:translate(-50%,calc(-100% - 10px));
+    white-space:nowrap;
+    opacity:0;
+    transition:opacity .1s ease;
+    z-index:5;
+  }
+  .tooltip.show{ opacity:1; }
+  .tooltip b{ font-weight:900; }
+
+  /* ---------- Ranking bars ---------- */
+  .rank-list{ display:flex; flex-direction:column; gap:10px; }
+  .rank-row{
+    display:grid;
+    grid-template-columns:132px 1fr 92px;
+    align-items:center;
+    gap:12px;
+    padding:6px 4px;
+    border-radius:8px;
+    transition:background .12s ease;
+  }
+  .rank-row:hover{ background:var(--surface-2); }
+  .rank-row .name{ font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rank-row .name .no{ color:var(--muted); font-weight:700; margin-right:6px; }
+  .rank-track{ height:16px; background:var(--surface-2); border-radius:5px; overflow:hidden; position:relative; }
+  .rank-fill{ height:100%; border-radius:5px; background:var(--accent); }
+  .rank-row .val{ font-size:13px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; color:var(--ink-secondary); }
+
+  /* ---------- Category share bar ---------- */
+  .share-shell{ position:relative; }
+  .share-bar{ display:flex; height:34px; border-radius:9px; overflow:hidden; border:1px solid var(--border); }
+  .share-seg{ height:100%; cursor:pointer; }
+  .share-legend{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .share-legend .row{ display:flex; align-items:center; gap:10px; font-size:13px; }
+  .share-legend .swatch{ width:11px; height:11px; border-radius:3px; flex-shrink:0; }
+  .share-legend .cat-name{ flex:1; color:var(--ink); font-weight:700; }
+  .share-legend .cat-val{ color:var(--ink-secondary); font-variant-numeric:tabular-nums; font-size:12.5px; }
+  .share-legend .cat-pct{ width:44px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; }
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    padding-top:8px;
+  }
+
+  /* ---------- Drag & drop CSV import ---------- */
+  .drop-hint{
+    font-size:12px;
+    color:var(--muted);
+    align-self:center;
+  }
+  .drop-overlay{
+    position:fixed;
+    inset:0;
+    z-index:80;
+    background:rgba(10,8,6,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .drop-overlay[hidden]{ display:none; }
+  .drop-overlay-inner{
+    border:3px dashed var(--accent);
+    border-radius:20px;
+    padding:44px 56px;
+    background:var(--surface);
+    color:var(--ink);
+    box-shadow:var(--shadow);
+    text-align:center;
+  }
+  .drop-overlay-inner .big{
+    font-family:'Shippori Mincho', serif;
+    font-size:20px;
+    font-weight:700;
+    display:block;
+    margin-bottom:6px;
+  }
+  .drop-overlay-inner .small{
+    font-size:12.5px;
+    color:var(--ink-secondary);
+  }
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    transform:translate(-50%,16px);
+    background:var(--ink);
+    color:var(--plane);
+    padding:12px 20px;
+    border-radius:10px;
+    font-size:13.5px;
+    font-weight:500;
+    box-shadow:0 10px 28px -10px rgba(0,0,0,.45);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+    z-index:90;
+    max-width:min(90vw,480px);
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  @media (max-width:820px){
+    .stats{ grid-template-columns:repeat(2,1fr); }
+    .row-2{ grid-template-columns:1fr; }
+    .meta{ text-align:left; }
+    header.top{ align-items:flex-start; }
+  }
+  @media (max-width:520px){
+    .stats{ grid-template-columns:1fr; }
+    .rank-row{ grid-template-columns:96px 1fr 76px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">☕</div>
+      <div>
+        <h1>コーヒー売上ダッシュボード</h1>
+        <p>豆・ドリップ・ギフト・定期便 全チャネル取引の集計</p>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="api-pill offline" id="dataSourceBadge"><span class="dot"></span>内蔵データ</span>
+      <span class="period" id="periodText">2026年1月1日 〜 3月31日</span>
+      <span>全<strong id="metaTotal">-</strong>件中 <strong id="metaCount">-</strong>件を集計</span>
+    </div>
+  </header>
+
+  <section class="quote-banner" id="quoteBanner"></section>
+
+  <section class="filters">
+    <div class="filter-group">
+      <span class="fg-label">月で絞り込み</span>
+      <div class="chip-row" id="monthFilter"></div>
+    </div>
+    <div class="filter-group">
+      <span class="fg-label">地域で絞り込み</span>
+      <div class="chip-row" id="regionFilter"></div>
+    </div>
+    <div class="filter-group">
+      <span class="fg-label">カテゴリで絞り込み</span>
+      <div class="chip-row" id="categoryFilter"></div>
+    </div>
+    <span class="filter-status" id="filterStatus"></span>
+    <span class="drop-hint">📄 CSVをドラッグ&ドロップで追加</span>
+  </section>
+
+  <section class="stats" id="statTiles"></section>
+
+  <section class="row-2">
+    <div class="card">
+      <h2>月別売上推移</h2>
+      <p class="card-sub" id="monthlySub">カテゴリ別の内訳を積み上げて表示(単位:万円)</p>
+      <div class="legend" id="monthlyLegend"></div>
+      <div class="chart-shell">
+        <svg id="monthlyChart" viewBox="0 0 640 330" role="img" aria-label="月別・カテゴリ別売上の積み上げ棒グラフ"></svg>
+        <div class="tooltip" id="monthlyTooltip"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>カテゴリ別内訳</h2>
+      <p class="card-sub" id="shareSub">表示中のデータに占める割合</p>
+      <div class="share-shell">
+        <div class="share-bar" id="shareBar"></div>
+        <div class="tooltip" id="shareTooltip"></div>
+      </div>
+      <div class="share-legend" id="shareLegend"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>商品別売上ランキング</h2>
+    <p class="card-sub" id="productSub">売上金額順</p>
+    <div class="rank-list" id="productRank"></div>
+  </section>
+
+  <section class="card">
+    <h2>地域別売上</h2>
+    <p class="card-sub" id="regionSub">売上金額順</p>
+    <div class="rank-list" id="regionRank"></div>
+  </section>
+
+  <footer id="footerText">売上データ.csv(405件の取引明細)を集計・可視化。数値はすべてCSVから自動算出。</footer>
+</div>
+
+<div class="drop-overlay" id="dropOverlay" hidden>
+  <div class="drop-overlay-inner">
+    <span class="big">📄 ここにドロップして読み込む</span>
+    <span class="small">日付,商品名,カテゴリ,地域,数量,単価,売上金額 の列を持つCSVファイル</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CSV = `日付,商品名,カテゴリ,地域,数量,単価,売上金額
+2026-01-01,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-01-01,ギフトセット,ギフト,福岡,4,4500,18000
+2026-01-02,マグカップ,雑貨,東京,1,1800,1800
+2026-01-02,コーヒー豆200g,食品,名古屋,2,1500,3000
+2026-01-03,コーヒー豆200g,食品,名古屋,3,1500,4500
+2026-01-03,ドリップコーヒー12杯,食品,札幌,2,1200,2400
+2026-01-03,コーヒー豆200g,食品,東京,4,1500,6000
+2026-01-03,コーヒー豆200g,食品,東京,1,1500,1500
+2026-01-03,ドリップパックギフト,ギフト,名古屋,3,3200,9600
+2026-01-03,ギフトセット,ギフト,名古屋,5,4500,22500
+2026-01-03,カフェオレベース,食品,名古屋,3,980,2940
+2026-01-04,タンブラー,雑貨,福岡,1,2800,2800
+2026-01-04,コーヒー豆200g,食品,東京,1,1500,1500
+2026-01-04,コーヒー豆200g,食品,東京,1,1500,1500
+2026-01-04,マグカップ,雑貨,大阪,1,1800,1800
+2026-01-04,コーヒー豆200g,食品,東京,4,1500,6000
+2026-01-04,マグカップ,雑貨,名古屋,1,1800,1800
+2026-01-05,ドリップコーヒー12杯,食品,大阪,5,1200,6000
+2026-01-05,マグカップ,雑貨,名古屋,2,1800,3600
+2026-01-05,ドリップパックギフト,ギフト,福岡,1,3200,3200
+2026-01-06,ドリップパックギフト,ギフト,大阪,1,3200,3200
+2026-01-06,定期便（月1）,サブスク,名古屋,2,3600,7200
+2026-01-07,マグカップ,雑貨,大阪,4,1800,7200
+2026-01-07,カフェオレベース,食品,東京,1,980,980
+2026-01-07,タンブラー,雑貨,東京,2,2800,5600
+2026-01-08,カフェオレベース,食品,その他,1,980,980
+2026-01-08,タンブラー,雑貨,福岡,3,2800,8400
+2026-01-08,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-01-08,マグカップ,雑貨,大阪,2,1800,3600
+2026-01-08,カフェオレベース,食品,東京,2,980,1960
+2026-01-09,マグカップ,雑貨,東京,4,1800,7200
+2026-01-09,ギフトセット,ギフト,福岡,1,4500,4500
+2026-01-10,カフェオレベース,食品,大阪,4,980,3920
+2026-01-10,ドリップパックギフト,ギフト,東京,2,3200,6400
+2026-01-10,ドリップコーヒー12杯,食品,その他,3,1200,3600
+2026-01-10,コーヒー豆200g,食品,名古屋,2,1500,3000
+2026-01-10,ドリップコーヒー12杯,食品,福岡,2,1200,2400
+2026-01-10,ギフトセット,ギフト,名古屋,1,4500,4500
+2026-01-11,カフェオレベース,食品,東京,1,980,980
+2026-01-11,定期便（月1）,サブスク,札幌,1,3600,3600
+2026-01-11,コーヒー豆200g,食品,名古屋,1,1500,1500
+2026-01-11,ギフトセット,ギフト,札幌,5,4500,22500
+2026-01-11,タンブラー,雑貨,東京,2,2800,5600
+2026-01-11,定期便（月1）,サブスク,東京,2,3600,7200
+2026-01-12,定期便（月1）,サブスク,その他,3,3600,10800
+2026-01-12,マグカップ,雑貨,福岡,1,1800,1800
+2026-01-12,マグカップ,雑貨,大阪,4,1800,7200
+2026-01-12,カフェオレベース,食品,東京,1,980,980
+2026-01-12,ドリップコーヒー12杯,食品,名古屋,2,1200,2400
+2026-01-13,ドリップコーヒー12杯,食品,名古屋,1,1200,1200
+2026-01-13,定期便（月1）,サブスク,札幌,1,3600,3600
+2026-01-14,コーヒー豆200g,食品,大阪,2,1500,3000
+2026-01-14,ギフトセット,ギフト,札幌,2,4500,9000
+2026-01-14,コーヒー豆200g,食品,大阪,1,1500,1500
+2026-01-15,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-01-15,カフェオレベース,食品,福岡,2,980,1960
+2026-01-16,ドリップコーヒー12杯,食品,福岡,3,1200,3600
+2026-01-16,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-01-17,カフェオレベース,食品,東京,1,980,980
+2026-01-17,定期便（月1）,サブスク,大阪,3,3600,10800
+2026-01-17,タンブラー,雑貨,東京,5,2800,14000
+2026-01-17,ドリップパックギフト,ギフト,その他,4,3200,12800
+2026-01-18,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-01-18,カフェオレベース,食品,東京,1,980,980
+2026-01-18,定期便（月1）,サブスク,東京,3,3600,10800
+2026-01-18,カフェオレベース,食品,大阪,4,980,3920
+2026-01-19,ドリップコーヒー12杯,食品,東京,5,1200,6000
+2026-01-19,タンブラー,雑貨,名古屋,2,2800,5600
+2026-01-19,ドリップコーヒー12杯,食品,名古屋,2,1200,2400
+2026-01-19,ドリップパックギフト,ギフト,東京,5,3200,16000
+2026-01-19,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-01-20,カフェオレベース,食品,その他,2,980,1960
+2026-01-20,タンブラー,雑貨,東京,1,2800,2800
+2026-01-20,マグカップ,雑貨,名古屋,1,1800,1800
+2026-01-21,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-01-21,カフェオレベース,食品,福岡,1,980,980
+2026-01-21,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-01-21,カフェオレベース,食品,その他,5,980,4900
+2026-01-22,タンブラー,雑貨,名古屋,1,2800,2800
+2026-01-22,コーヒー豆200g,食品,東京,1,1500,1500
+2026-01-23,ドリップコーヒー12杯,食品,札幌,2,1200,2400
+2026-01-23,マグカップ,雑貨,その他,2,1800,3600
+2026-01-23,ドリップコーヒー12杯,食品,札幌,1,1200,1200
+2026-01-23,マグカップ,雑貨,その他,1,1800,1800
+2026-01-24,定期便（月1）,サブスク,福岡,1,3600,3600
+2026-01-24,コーヒー豆200g,食品,東京,1,1500,1500
+2026-01-24,マグカップ,雑貨,札幌,2,1800,3600
+2026-01-25,定期便（月1）,サブスク,札幌,1,3600,3600
+2026-01-25,カフェオレベース,食品,東京,1,980,980
+2026-01-25,ギフトセット,ギフト,名古屋,1,4500,4500
+2026-01-25,ギフトセット,ギフト,名古屋,1,4500,4500
+2026-01-25,ドリップコーヒー12杯,食品,東京,4,1200,4800
+2026-01-25,定期便（月1）,サブスク,名古屋,3,3600,10800
+2026-01-26,カフェオレベース,食品,東京,1,980,980
+2026-01-26,定期便（月1）,サブスク,その他,1,3600,3600
+2026-01-26,カフェオレベース,食品,福岡,2,980,1960
+2026-01-27,ギフトセット,ギフト,札幌,1,4500,4500
+2026-01-27,マグカップ,雑貨,東京,4,1800,7200
+2026-01-27,ドリップパックギフト,ギフト,その他,3,3200,9600
+2026-01-27,定期便（月1）,サブスク,東京,2,3600,7200
+2026-01-28,ドリップパックギフト,ギフト,大阪,2,3200,6400
+2026-01-28,ギフトセット,ギフト,東京,1,4500,4500
+2026-01-28,ギフトセット,ギフト,大阪,1,4500,4500
+2026-01-28,カフェオレベース,食品,東京,4,980,3920
+2026-01-29,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-01-29,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-01-29,ドリップパックギフト,ギフト,その他,1,3200,3200
+2026-01-29,マグカップ,雑貨,大阪,5,1800,9000
+2026-01-30,定期便（月1）,サブスク,東京,5,3600,18000
+2026-01-30,ドリップコーヒー12杯,食品,その他,1,1200,1200
+2026-01-30,ドリップコーヒー12杯,食品,大阪,2,1200,2400
+2026-01-30,コーヒー豆200g,食品,名古屋,2,1500,3000
+2026-01-31,定期便（月1）,サブスク,東京,1,3600,3600
+2026-01-31,カフェオレベース,食品,名古屋,3,980,2940
+2026-01-31,マグカップ,雑貨,その他,2,1800,3600
+2026-01-31,コーヒー豆200g,食品,大阪,4,1500,6000
+2026-01-31,定期便（月1）,サブスク,名古屋,2,3600,7200
+2026-01-31,ドリップコーヒー12杯,食品,その他,2,1200,2400
+2026-01-31,マグカップ,雑貨,大阪,2,1800,3600
+2026-01-31,タンブラー,雑貨,東京,2,2800,5600
+2026-02-01,マグカップ,雑貨,その他,2,1800,3600
+2026-02-01,コーヒー豆200g,食品,名古屋,1,1500,1500
+2026-02-01,コーヒー豆200g,食品,大阪,2,1500,3000
+2026-02-01,マグカップ,雑貨,大阪,1,1800,1800
+2026-02-01,コーヒー豆200g,食品,大阪,4,1500,6000
+2026-02-01,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-02-01,タンブラー,雑貨,名古屋,1,2800,2800
+2026-02-01,ドリップパックギフト,ギフト,福岡,2,3200,6400
+2026-02-02,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-02-02,定期便（月1）,サブスク,名古屋,3,3600,10800
+2026-02-02,カフェオレベース,食品,札幌,2,980,1960
+2026-02-03,タンブラー,雑貨,東京,2,2800,5600
+2026-02-03,ドリップコーヒー12杯,食品,福岡,3,1200,3600
+2026-02-03,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-02-03,定期便（月1）,サブスク,名古屋,1,3600,3600
+2026-02-03,コーヒー豆200g,食品,札幌,1,1500,1500
+2026-02-04,マグカップ,雑貨,その他,2,1800,3600
+2026-02-04,定期便（月1）,サブスク,札幌,2,3600,7200
+2026-02-04,ギフトセット,ギフト,名古屋,3,4500,13500
+2026-02-04,タンブラー,雑貨,札幌,2,2800,5600
+2026-02-04,カフェオレベース,食品,東京,1,980,980
+2026-02-05,ギフトセット,ギフト,名古屋,2,4500,9000
+2026-02-05,コーヒー豆200g,食品,東京,1,1500,1500
+2026-02-05,コーヒー豆200g,食品,大阪,2,1500,3000
+2026-02-05,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-02-06,ドリップコーヒー12杯,食品,大阪,2,1200,2400
+2026-02-06,カフェオレベース,食品,東京,1,980,980
+2026-02-06,定期便（月1）,サブスク,名古屋,2,3600,7200
+2026-02-07,カフェオレベース,食品,その他,1,980,980
+2026-02-07,カフェオレベース,食品,札幌,3,980,2940
+2026-02-07,タンブラー,雑貨,福岡,3,2800,8400
+2026-02-07,定期便（月1）,サブスク,大阪,1,3600,3600
+2026-02-07,カフェオレベース,食品,大阪,2,980,1960
+2026-02-07,ドリップパックギフト,ギフト,福岡,3,3200,9600
+2026-02-07,定期便（月1）,サブスク,その他,2,3600,7200
+2026-02-07,定期便（月1）,サブスク,名古屋,2,3600,7200
+2026-02-08,マグカップ,雑貨,東京,1,1800,1800
+2026-02-08,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-02-08,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-02-09,コーヒー豆200g,食品,東京,1,1500,1500
+2026-02-09,タンブラー,雑貨,その他,1,2800,2800
+2026-02-09,マグカップ,雑貨,福岡,2,1800,3600
+2026-02-09,ギフトセット,ギフト,その他,1,4500,4500
+2026-02-09,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-02-09,マグカップ,雑貨,名古屋,1,1800,1800
+2026-02-10,ギフトセット,ギフト,東京,2,4500,9000
+2026-02-10,ギフトセット,ギフト,東京,3,4500,13500
+2026-02-10,定期便（月1）,サブスク,東京,1,3600,3600
+2026-02-10,コーヒー豆200g,食品,福岡,4,1500,6000
+2026-02-11,定期便（月1）,サブスク,東京,2,3600,7200
+2026-02-11,ドリップパックギフト,ギフト,東京,2,3200,6400
+2026-02-11,コーヒー豆200g,食品,福岡,3,1500,4500
+2026-02-11,ドリップパックギフト,ギフト,名古屋,1,3200,3200
+2026-02-11,タンブラー,雑貨,福岡,1,2800,2800
+2026-02-11,マグカップ,雑貨,東京,1,1800,1800
+2026-02-12,ドリップコーヒー12杯,食品,その他,2,1200,2400
+2026-02-12,ドリップパックギフト,ギフト,福岡,1,3200,3200
+2026-02-12,ギフトセット,ギフト,その他,1,4500,4500
+2026-02-12,ドリップパックギフト,ギフト,名古屋,1,3200,3200
+2026-02-12,カフェオレベース,食品,福岡,1,980,980
+2026-02-12,ドリップパックギフト,ギフト,札幌,1,3200,3200
+2026-02-13,コーヒー豆200g,食品,大阪,2,1500,3000
+2026-02-13,カフェオレベース,食品,東京,3,980,2940
+2026-02-13,ドリップコーヒー12杯,食品,東京,3,1200,3600
+2026-02-13,コーヒー豆200g,食品,札幌,2,1500,3000
+2026-02-13,コーヒー豆200g,食品,東京,4,1500,6000
+2026-02-13,ドリップコーヒー12杯,食品,福岡,1,1200,1200
+2026-02-14,マグカップ,雑貨,名古屋,1,1800,1800
+2026-02-14,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-02-14,マグカップ,雑貨,大阪,2,1800,3600
+2026-02-14,カフェオレベース,食品,名古屋,1,980,980
+2026-02-14,ギフトセット,ギフト,大阪,2,4500,9000
+2026-02-15,コーヒー豆200g,食品,東京,2,1500,3000
+2026-02-15,コーヒー豆200g,食品,福岡,4,1500,6000
+2026-02-15,マグカップ,雑貨,東京,2,1800,3600
+2026-02-15,コーヒー豆200g,食品,名古屋,3,1500,4500
+2026-02-15,マグカップ,雑貨,その他,3,1800,5400
+2026-02-15,コーヒー豆200g,食品,大阪,1,1500,1500
+2026-02-16,コーヒー豆200g,食品,その他,2,1500,3000
+2026-02-16,マグカップ,雑貨,東京,3,1800,5400
+2026-02-16,カフェオレベース,食品,札幌,2,980,1960
+2026-02-17,カフェオレベース,食品,大阪,5,980,4900
+2026-02-17,コーヒー豆200g,食品,札幌,1,1500,1500
+2026-02-17,ドリップコーヒー12杯,食品,大阪,2,1200,2400
+2026-02-17,マグカップ,雑貨,東京,3,1800,5400
+2026-02-17,定期便（月1）,サブスク,東京,1,3600,3600
+2026-02-17,タンブラー,雑貨,大阪,2,2800,5600
+2026-02-18,ギフトセット,ギフト,大阪,4,4500,18000
+2026-02-18,コーヒー豆200g,食品,名古屋,1,1500,1500
+2026-02-18,タンブラー,雑貨,東京,5,2800,14000
+2026-02-19,定期便（月1）,サブスク,東京,1,3600,3600
+2026-02-19,マグカップ,雑貨,東京,1,1800,1800
+2026-02-20,ドリップコーヒー12杯,食品,大阪,2,1200,2400
+2026-02-20,カフェオレベース,食品,東京,1,980,980
+2026-02-21,ギフトセット,ギフト,大阪,2,4500,9000
+2026-02-21,定期便（月1）,サブスク,福岡,2,3600,7200
+2026-02-21,マグカップ,雑貨,その他,1,1800,1800
+2026-02-21,タンブラー,雑貨,名古屋,4,2800,11200
+2026-02-21,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-02-21,コーヒー豆200g,食品,福岡,2,1500,3000
+2026-02-22,カフェオレベース,食品,大阪,1,980,980
+2026-02-22,カフェオレベース,食品,東京,2,980,1960
+2026-02-22,カフェオレベース,食品,名古屋,4,980,3920
+2026-02-22,ギフトセット,ギフト,名古屋,1,4500,4500
+2026-02-22,コーヒー豆200g,食品,福岡,3,1500,4500
+2026-02-22,タンブラー,雑貨,東京,3,2800,8400
+2026-02-23,タンブラー,雑貨,福岡,1,2800,2800
+2026-02-23,タンブラー,雑貨,大阪,1,2800,2800
+2026-02-23,定期便（月1）,サブスク,大阪,3,3600,10800
+2026-02-23,定期便（月1）,サブスク,大阪,1,3600,3600
+2026-02-23,コーヒー豆200g,食品,東京,1,1500,1500
+2026-02-24,マグカップ,雑貨,東京,4,1800,7200
+2026-02-24,ドリップパックギフト,ギフト,名古屋,1,3200,3200
+2026-02-24,コーヒー豆200g,食品,大阪,5,1500,7500
+2026-02-24,カフェオレベース,食品,名古屋,5,980,4900
+2026-02-24,マグカップ,雑貨,名古屋,1,1800,1800
+2026-02-24,ドリップコーヒー12杯,食品,大阪,3,1200,3600
+2026-02-25,ギフトセット,ギフト,東京,2,4500,9000
+2026-02-25,定期便（月1）,サブスク,大阪,2,3600,7200
+2026-02-25,ドリップコーヒー12杯,食品,その他,2,1200,2400
+2026-02-25,コーヒー豆200g,食品,東京,2,1500,3000
+2026-02-25,タンブラー,雑貨,東京,5,2800,14000
+2026-02-25,定期便（月1）,サブスク,大阪,1,3600,3600
+2026-02-26,タンブラー,雑貨,福岡,2,2800,5600
+2026-02-26,コーヒー豆200g,食品,札幌,5,1500,7500
+2026-02-26,コーヒー豆200g,食品,名古屋,1,1500,1500
+2026-02-27,ドリップパックギフト,ギフト,東京,3,3200,9600
+2026-02-27,カフェオレベース,食品,その他,2,980,1960
+2026-02-27,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-02-28,ドリップパックギフト,ギフト,大阪,1,3200,3200
+2026-02-28,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-02-28,定期便（月1）,サブスク,札幌,5,3600,18000
+2026-02-28,コーヒー豆200g,食品,大阪,3,1500,4500
+2026-02-28,カフェオレベース,食品,大阪,1,980,980
+2026-02-28,定期便（月1）,サブスク,大阪,5,3600,18000
+2026-02-28,ドリップパックギフト,ギフト,福岡,1,3200,3200
+2026-02-28,定期便（月1）,サブスク,東京,5,3600,18000
+2026-03-01,ドリップパックギフト,ギフト,札幌,1,3200,3200
+2026-03-01,タンブラー,雑貨,大阪,2,2800,5600
+2026-03-01,カフェオレベース,食品,福岡,1,980,980
+2026-03-01,カフェオレベース,食品,その他,1,980,980
+2026-03-01,マグカップ,雑貨,名古屋,3,1800,5400
+2026-03-01,ドリップパックギフト,ギフト,札幌,1,3200,3200
+2026-03-01,コーヒー豆200g,食品,福岡,3,1500,4500
+2026-03-02,マグカップ,雑貨,東京,2,1800,3600
+2026-03-02,コーヒー豆200g,食品,東京,1,1500,1500
+2026-03-03,ギフトセット,ギフト,福岡,1,4500,4500
+2026-03-03,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-03-04,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-03-04,ドリップコーヒー12杯,食品,名古屋,2,1200,2400
+2026-03-04,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-03-04,ドリップパックギフト,ギフト,名古屋,1,3200,3200
+2026-03-04,定期便（月1）,サブスク,東京,1,3600,3600
+2026-03-05,カフェオレベース,食品,福岡,4,980,3920
+2026-03-05,カフェオレベース,食品,東京,2,980,1960
+2026-03-05,ドリップコーヒー12杯,食品,その他,5,1200,6000
+2026-03-05,コーヒー豆200g,食品,その他,2,1500,3000
+2026-03-05,カフェオレベース,食品,大阪,5,980,4900
+2026-03-06,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-06,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-03-06,ドリップパックギフト,ギフト,大阪,1,3200,3200
+2026-03-06,ドリップパックギフト,ギフト,福岡,5,3200,16000
+2026-03-06,定期便（月1）,サブスク,福岡,3,3600,10800
+2026-03-06,定期便（月1）,サブスク,福岡,1,3600,3600
+2026-03-07,コーヒー豆200g,食品,東京,1,1500,1500
+2026-03-07,ギフトセット,ギフト,福岡,2,4500,9000
+2026-03-07,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-03-07,ドリップコーヒー12杯,食品,福岡,1,1200,1200
+2026-03-07,カフェオレベース,食品,東京,4,980,3920
+2026-03-07,コーヒー豆200g,食品,大阪,1,1500,1500
+2026-03-07,ドリップパックギフト,ギフト,札幌,1,3200,3200
+2026-03-08,ドリップパックギフト,ギフト,東京,3,3200,9600
+2026-03-08,カフェオレベース,食品,札幌,2,980,1960
+2026-03-08,コーヒー豆200g,食品,東京,5,1500,7500
+2026-03-08,ドリップコーヒー12杯,食品,その他,3,1200,3600
+2026-03-08,ギフトセット,ギフト,その他,5,4500,22500
+2026-03-08,ドリップパックギフト,ギフト,大阪,3,3200,9600
+2026-03-08,ドリップコーヒー12杯,食品,名古屋,1,1200,1200
+2026-03-09,タンブラー,雑貨,札幌,4,2800,11200
+2026-03-09,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-03-09,定期便（月1）,サブスク,名古屋,4,3600,14400
+2026-03-09,コーヒー豆200g,食品,東京,3,1500,4500
+2026-03-09,定期便（月1）,サブスク,大阪,1,3600,3600
+2026-03-10,ドリップコーヒー12杯,食品,東京,5,1200,6000
+2026-03-10,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-03-10,カフェオレベース,食品,大阪,4,980,3920
+2026-03-10,マグカップ,雑貨,名古屋,2,1800,3600
+2026-03-11,定期便（月1）,サブスク,福岡,3,3600,10800
+2026-03-11,マグカップ,雑貨,その他,1,1800,1800
+2026-03-11,マグカップ,雑貨,東京,1,1800,1800
+2026-03-11,コーヒー豆200g,食品,大阪,5,1500,7500
+2026-03-12,タンブラー,雑貨,その他,1,2800,2800
+2026-03-12,カフェオレベース,食品,東京,1,980,980
+2026-03-12,ドリップパックギフト,ギフト,大阪,2,3200,6400
+2026-03-12,マグカップ,雑貨,名古屋,1,1800,1800
+2026-03-12,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-03-13,ドリップコーヒー12杯,食品,福岡,1,1200,1200
+2026-03-13,コーヒー豆200g,食品,札幌,1,1500,1500
+2026-03-13,ドリップコーヒー12杯,食品,その他,1,1200,1200
+2026-03-13,ドリップパックギフト,ギフト,東京,1,3200,3200
+2026-03-14,ドリップパックギフト,ギフト,東京,3,3200,9600
+2026-03-14,ドリップコーヒー12杯,食品,大阪,3,1200,3600
+2026-03-14,タンブラー,雑貨,東京,1,2800,2800
+2026-03-14,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-14,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-14,マグカップ,雑貨,大阪,1,1800,1800
+2026-03-14,マグカップ,雑貨,福岡,4,1800,7200
+2026-03-15,カフェオレベース,食品,その他,1,980,980
+2026-03-15,カフェオレベース,食品,大阪,2,980,1960
+2026-03-15,カフェオレベース,食品,その他,1,980,980
+2026-03-15,ドリップコーヒー12杯,食品,名古屋,1,1200,1200
+2026-03-15,コーヒー豆200g,食品,名古屋,2,1500,3000
+2026-03-15,コーヒー豆200g,食品,その他,2,1500,3000
+2026-03-15,カフェオレベース,食品,名古屋,1,980,980
+2026-03-16,ドリップパックギフト,ギフト,福岡,3,3200,9600
+2026-03-16,ギフトセット,ギフト,東京,1,4500,4500
+2026-03-17,カフェオレベース,食品,札幌,1,980,980
+2026-03-17,ギフトセット,ギフト,大阪,1,4500,4500
+2026-03-17,コーヒー豆200g,食品,その他,2,1500,3000
+2026-03-17,カフェオレベース,食品,東京,1,980,980
+2026-03-18,ドリップコーヒー12杯,食品,福岡,3,1200,3600
+2026-03-18,タンブラー,雑貨,名古屋,2,2800,5600
+2026-03-18,コーヒー豆200g,食品,東京,1,1500,1500
+2026-03-18,マグカップ,雑貨,福岡,3,1800,5400
+2026-03-18,ギフトセット,ギフト,その他,2,4500,9000
+2026-03-18,コーヒー豆200g,食品,名古屋,1,1500,1500
+2026-03-19,コーヒー豆200g,食品,東京,3,1500,4500
+2026-03-19,カフェオレベース,食品,福岡,2,980,1960
+2026-03-19,ドリップパックギフト,ギフト,札幌,5,3200,16000
+2026-03-19,ドリップパックギフト,ギフト,名古屋,2,3200,6400
+2026-03-19,ドリップコーヒー12杯,食品,その他,3,1200,3600
+2026-03-19,コーヒー豆200g,食品,東京,2,1500,3000
+2026-03-20,定期便（月1）,サブスク,大阪,1,3600,3600
+2026-03-20,ドリップコーヒー12杯,食品,福岡,1,1200,1200
+2026-03-20,ギフトセット,ギフト,その他,1,4500,4500
+2026-03-20,タンブラー,雑貨,大阪,1,2800,2800
+2026-03-20,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-21,定期便（月1）,サブスク,東京,3,3600,10800
+2026-03-21,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-03-21,カフェオレベース,食品,名古屋,1,980,980
+2026-03-22,ギフトセット,ギフト,東京,1,4500,4500
+2026-03-22,コーヒー豆200g,食品,福岡,1,1500,1500
+2026-03-22,マグカップ,雑貨,東京,1,1800,1800
+2026-03-22,マグカップ,雑貨,東京,1,1800,1800
+2026-03-22,コーヒー豆200g,食品,東京,1,1500,1500
+2026-03-23,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-23,ドリップコーヒー12杯,食品,名古屋,1,1200,1200
+2026-03-23,タンブラー,雑貨,福岡,1,2800,2800
+2026-03-23,カフェオレベース,食品,福岡,1,980,980
+2026-03-23,カフェオレベース,食品,東京,1,980,980
+2026-03-24,タンブラー,雑貨,福岡,1,2800,2800
+2026-03-24,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-03-24,ドリップパックギフト,ギフト,名古屋,3,3200,9600
+2026-03-24,定期便（月1）,サブスク,東京,3,3600,10800
+2026-03-24,コーヒー豆200g,食品,名古屋,2,1500,3000
+2026-03-24,カフェオレベース,食品,大阪,1,980,980
+2026-03-25,ギフトセット,ギフト,東京,2,4500,9000
+2026-03-25,タンブラー,雑貨,東京,3,2800,8400
+2026-03-25,コーヒー豆200g,食品,その他,2,1500,3000
+2026-03-25,ドリップコーヒー12杯,食品,東京,1,1200,1200
+2026-03-25,ドリップコーヒー12杯,食品,東京,3,1200,3600
+2026-03-26,ドリップコーヒー12杯,食品,福岡,1,1200,1200
+2026-03-26,ギフトセット,ギフト,福岡,1,4500,4500
+2026-03-27,ドリップパックギフト,ギフト,名古屋,1,3200,3200
+2026-03-27,ドリップコーヒー12杯,食品,大阪,1,1200,1200
+2026-03-27,コーヒー豆200g,食品,東京,2,1500,3000
+2026-03-27,コーヒー豆200g,食品,大阪,1,1500,1500
+2026-03-27,ドリップパックギフト,ギフト,東京,3,3200,9600
+2026-03-28,マグカップ,雑貨,名古屋,1,1800,1800
+2026-03-28,タンブラー,雑貨,福岡,4,2800,11200
+2026-03-28,カフェオレベース,食品,札幌,2,980,1960
+2026-03-29,マグカップ,雑貨,名古屋,4,1800,7200
+2026-03-29,カフェオレベース,食品,札幌,3,980,2940
+2026-03-29,定期便（月1）,サブスク,東京,2,3600,7200
+2026-03-29,ドリップコーヒー12杯,食品,福岡,5,1200,6000
+2026-03-29,タンブラー,雑貨,名古屋,1,2800,2800
+2026-03-29,定期便（月1）,サブスク,大阪,3,3600,10800
+2026-03-29,マグカップ,雑貨,東京,2,1800,3600
+2026-03-30,ドリップコーヒー12杯,食品,東京,2,1200,2400
+2026-03-30,コーヒー豆200g,食品,福岡,2,1500,3000
+2026-03-30,定期便（月1）,サブスク,札幌,1,3600,3600
+2026-03-30,タンブラー,雑貨,東京,1,2800,2800
+2026-03-30,定期便（月1）,サブスク,福岡,1,3600,3600
+2026-03-31,コーヒー豆200g,食品,大阪,3,1500,4500
+2026-03-31,ドリップパックギフト,ギフト,福岡,3,3200,9600`;
+
+// ---------- Parse (embedded CSV, used as an offline fallback) ----------
+function parseCSV(text){
+  const clean = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n").trim();
+  const lines = clean.split("\n").filter(l => l.length>0);
+  const body = lines.length && lines[0].startsWith("日付") ? lines.slice(1) : lines;
+  return body.map(line => {
+    const [date, product, category, region, qty, price, amount] = line.split(",");
+    return { date, product, category, region, qty:+qty, price:+price, amount:+amount, month: (date||"").slice(0,7) };
+  }).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && !isNaN(r.amount));
+}
+
+const fmtYen = n => "¥" + Math.round(n).toLocaleString("ja-JP");
+const fmtMan = n => (n/10000).toLocaleString("ja-JP", {maximumFractionDigits:1}) + "万";
+
+const CAT_ORDER = ["食品","ギフト","雑貨","サブスク"];
+const CAT_COLOR = { "食品":"var(--cat-food)", "ギフト":"var(--cat-gift)", "雑貨":"var(--cat-goods)", "サブスク":"var(--cat-sub)" };
+const CAT_HEX_LIGHT = { "食品":"#2a78d6","ギフト":"#eb6834","雑貨":"#1baf7a","サブスク":"#c98500" };
+const REGION_ORDER = ["東京","大阪","名古屋","福岡","札幌","その他"];
+const API_URL = "http://127.0.0.1:8000/api/sales";
+
+function monthLabel(m){
+  return `${parseInt(m.split("-")[1], 10)}月`;
+}
+
+let rows = [];
+let MONTHS = [];
+let totalAmountAll = 0;
+
+// ---------- Filter state ----------
+const state = {
+  months: new Set(),
+  regions: new Set(REGION_ORDER),
+  categories: new Set(CAT_ORDER),
+};
+
+function getFilteredRows(){
+  return rows.filter(r => state.months.has(r.month) && state.regions.has(r.region) && state.categories.has(r.category));
+}
+
+function renderChips(containerId, options, selectedSet, onToggle, labelFn){
+  const toLabel = labelFn || (o => o);
+  const el = document.getElementById(containerId);
+  const allActive = selectedSet.size === options.length;
+  let html = `<button type="button" class="chip chip-all ${allActive?"active":""}" data-all="1">すべて</button>`;
+  html += options.map(opt => `<button type="button" class="chip ${selectedSet.has(opt)?"active":""}" data-value="${opt}">${toLabel(opt)}</button>`).join("");
+  el.innerHTML = html;
+  el.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      if(chip.dataset.all){
+        selectedSet.clear();
+        options.forEach(o => selectedSet.add(o));
+      } else {
+        const v = chip.dataset.value;
+        if(selectedSet.has(v)){
+          if(selectedSet.size > 1) selectedSet.delete(v); // keep at least one selected
+        } else {
+          selectedSet.add(v);
+        }
+      }
+      renderChips(containerId, options, selectedSet, onToggle, labelFn);
+      onToggle();
+    });
+  });
+}
+
+function sparkSVG(values){
+  const w=100,h=32,pad=4;
+  const max = Math.max(...values), min = Math.min(...values);
+  const range = (max-min)||1;
+  const pts = values.map((v,i)=>{
+    const x = pad + i*(w-2*pad)/(values.length-1 || 1);
+    const y = h-pad - (v-min)/range*(h-2*pad);
+    return [x,y];
+  });
+  const line = pts.map((p,i)=> (i===0?"M":"L")+p[0]+","+p[1]).join(" ");
+  const area = line + ` L${pts[pts.length-1][0]},${h-pad} L${pts[0][0]},${h-pad} Z`;
+  const last = pts[pts.length-1];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="100" height="32">
+    <path class="area" d="${area}"/>
+    <path class="line" d="${line}"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3"/>
+  </svg>`;
+}
+
+// nice-number axis: snaps the step to 1/2/2.5/5/10 x 10^n, with headroom above the top gridline
+function computeAxis(max){
+  if(max<=0) return { ticks:[0,25000,50000,75000], yMax:100000 };
+  const roughStep = max/3;
+  const exp = Math.floor(Math.log10(roughStep));
+  const base = Math.pow(10, exp);
+  const step = [1,2,2.5,5,10].map(c=>c*base).find(s=>s>=roughStep) || 10*base;
+  return { ticks:[0,step,2*step,3*step], yMax: step*3.5 };
+}
+
+function renderStats(filteredRows){
+  const totalAmount = filteredRows.reduce((s,r)=>s+r.amount,0);
+  const totalQty = filteredRows.reduce((s,r)=>s+r.qty,0);
+  const txCount = filteredRows.length;
+  const avgTicket = txCount ? totalAmount/txCount : 0;
+  const activeMonths = MONTHS.filter(m => state.months.has(m));
+  const monthTotals = activeMonths.map(m => filteredRows.filter(r=>r.month===m).reduce((s,r)=>s+r.amount,0));
+
+  const statTiles = [
+    { label:"合計売上金額", value: fmtYen(totalAmount), sub:"表示中データの合計", hero:true, spark: txCount ? sparkSVG(monthTotals) : "" },
+    { label:"合計販売数量", value: totalQty.toLocaleString("ja-JP")+"個", sub:"表示中データの合計" },
+    { label:"取引件数", value: txCount.toLocaleString("ja-JP")+"件", sub:"1オーダー=1行" },
+    { label:"平均客単価", value: txCount ? fmtYen(avgTicket) : "—", sub:"売上 ÷ 取引件数" },
+  ];
+  document.getElementById("statTiles").innerHTML = statTiles.map(t => `
+    <div class="stat-tile ${t.hero?"hero":""}">
+      <div class="label">${t.label}</div>
+      <div class="value">${t.value}</div>
+      ${t.spark ? t.spark : ""}
+      <div class="sub">${t.sub}</div>
+    </div>
+  `).join("");
+}
+
+const monthlyTooltip = document.getElementById("monthlyTooltip");
+function renderMonthlyChart(filteredRows){
+  const svg = document.getElementById("monthlyChart");
+  const activeCats = CAT_ORDER.filter(c => state.categories.has(c));
+  const activeMonths = MONTHS.filter(m => state.months.has(m));
+
+  if(filteredRows.length===0 || activeMonths.length===0){
+    svg.innerHTML = "";
+    return;
+  }
+
+  const monthTotalsAll = activeMonths.map(m => filteredRows.filter(r=>r.month===m).reduce((s,r)=>s+r.amount,0));
+  const { ticks, yMax } = computeAxis(Math.max(...monthTotalsAll));
+
+  const W=640, H=330, ML=54, MR=16, MT=34, MB=40;
+  const plotW = W-ML-MR, plotH = H-MT-MB;
+  const barCount = activeMonths.length;
+  const gap = Math.min(46, plotW/(barCount*3));
+  const barW = (plotW - gap*(barCount+1)) / barCount;
+
+  let svgMarkup = "";
+
+  ticks.forEach(t => {
+    const y = MT + plotH - (t/yMax)*plotH;
+    svgMarkup += `<line class="grid-line" x1="${ML}" x2="${W-MR}" y1="${y}" y2="${y}"/>`;
+    svgMarkup += `<text class="axis-tick" x="${ML-10}" y="${y+4}" text-anchor="end">${t===0?"0":fmtMan(t)+"円"}</text>`;
+  });
+
+  activeMonths.forEach((m, i) => {
+    const x = ML + gap + i*(barW+gap);
+    let yCursor = MT + plotH;
+    const monthRows = filteredRows.filter(r=>r.month===m);
+    const total = monthRows.reduce((s,r)=>s+r.amount,0);
+
+    activeCats.forEach(cat => {
+      const catTotal = monthRows.filter(r=>r.category===cat).reduce((s,r)=>s+r.amount,0);
+      if(catTotal<=0) return;
+      const segH = (catTotal/yMax)*plotH;
+      const y = yCursor - segH;
+      svgMarkup += `<rect class="bar-seg" x="${x}" y="${y}" width="${barW}" height="${Math.max(segH-2,0)}" rx="3" fill="${CAT_HEX_LIGHT[cat]}"
+        data-cat="${cat}" data-val="${catTotal}" data-month="${monthLabel(m)}" data-share="${(total?catTotal/total*100:0).toFixed(1)}"></rect>`;
+      yCursor = y-2;
+    });
+
+    if(total>0){
+      const topY = MT + plotH - (total/yMax)*plotH;
+      svgMarkup += `<text class="month-total" x="${x+barW/2}" y="${Math.max(topY-10,16)}" text-anchor="middle">${fmtMan(total)}円</text>`;
+    }
+    svgMarkup += `<text class="month-label" x="${x+barW/2}" y="${MT+plotH+22}" text-anchor="middle">${monthLabel(m)}</text>`;
+  });
+
+  svgMarkup += `<line class="grid-line" x1="${ML}" x2="${W-MR}" y1="${MT+plotH}" y2="${MT+plotH}" style="stroke:var(--axis)"/>`;
+
+  svg.innerHTML = svgMarkup;
+
+  svg.querySelectorAll(".bar-seg").forEach(seg => {
+    seg.addEventListener("mousemove", e => {
+      const shellRect = svg.parentElement.getBoundingClientRect();
+      monthlyTooltip.innerHTML = `${seg.dataset.month}・${seg.dataset.cat}<br><b>${fmtYen(seg.dataset.val)}</b> (${seg.dataset.share}%)`;
+      monthlyTooltip.style.left = (e.clientX - shellRect.left) + "px";
+      monthlyTooltip.style.top = (e.clientY - shellRect.top) + "px";
+      monthlyTooltip.classList.add("show");
+    });
+    seg.addEventListener("mouseleave", () => monthlyTooltip.classList.remove("show"));
+  });
+}
+
+const shareTooltip = document.getElementById("shareTooltip");
+function renderShareBar(filteredRows){
+  const shareBar = document.getElementById("shareBar");
+  const activeCats = CAT_ORDER.filter(c => state.categories.has(c));
+  const catTotals = activeCats
+    .map(c => ({ cat:c, val: filteredRows.filter(r=>r.category===c).reduce((s,r)=>s+r.amount,0) }))
+    .filter(c => c.val>0);
+  const grand = catTotals.reduce((s,c)=>s+c.val,0);
+
+  if(grand===0){
+    shareBar.innerHTML = "";
+    document.getElementById("shareLegend").innerHTML = `<div class="empty-note">該当するデータがありません</div>`;
+    return;
+  }
+
+  shareBar.innerHTML = catTotals.map(c => {
+    const pct = (c.val/grand*100);
+    return `<div class="share-seg" style="width:${pct}%; background:${CAT_HEX_LIGHT[c.cat]}" data-cat="${c.cat}" data-val="${c.val}" data-pct="${pct.toFixed(1)}"></div>`;
+  }).join("");
+
+  shareBar.querySelectorAll(".share-seg").forEach(seg => {
+    seg.addEventListener("mousemove", e => {
+      const shellRect = shareBar.parentElement.getBoundingClientRect();
+      shareTooltip.innerHTML = `${seg.dataset.cat}<br><b>${fmtYen(seg.dataset.val)}</b> (${seg.dataset.pct}%)`;
+      shareTooltip.style.left = (e.clientX - shellRect.left) + "px";
+      shareTooltip.style.top = (e.clientY - shellRect.top) + "px";
+      shareTooltip.classList.add("show");
+    });
+    seg.addEventListener("mouseleave", () => shareTooltip.classList.remove("show"));
+  });
+
+  document.getElementById("shareLegend").innerHTML = catTotals
+    .slice().sort((a,b)=>b.val-a.val)
+    .map(c => `
+      <div class="row">
+        <span class="swatch" style="background:${CAT_HEX_LIGHT[c.cat]}"></span>
+        <span class="cat-name">${c.cat}</span>
+        <span class="cat-val">${fmtYen(c.val)}</span>
+        <span class="cat-pct">${(c.val/grand*100).toFixed(1)}%</span>
+      </div>
+    `).join("");
+}
+
+function renderRankList(containerId, filteredRows, keyField, fillColorVar){
+  const el = document.getElementById(containerId);
+  const map = new Map();
+  filteredRows.forEach(r => {
+    const cur = map.get(r[keyField]) || { amount:0, qty:0, count:0 };
+    cur.amount += r.amount; cur.qty += r.qty; cur.count += 1;
+    map.set(r[keyField], cur);
+  });
+  const list = [...map.entries()].map(([name,v])=>({name,...v})).sort((a,b)=>b.amount-a.amount);
+  if(list.length===0){
+    el.innerHTML = `<div class="empty-note">該当するデータがありません</div>`;
+    return;
+  }
+  const max = list[0].amount;
+  el.innerHTML = list.map((p,i) => `
+    <div class="rank-row" title="${p.name}: ${fmtYen(p.amount)}(${p.count}件 / ${p.qty}個)">
+      <div class="name"><span class="no">${i+1}</span>${p.name}</div>
+      <div class="rank-track"><div class="rank-fill" style="width:${(p.amount/max*100).toFixed(1)}%; background:${fillColorVar}"></div></div>
+      <div class="val">${fmtYen(p.amount)}</div>
+    </div>
+  `).join("");
+}
+
+function renderAll(){
+  const filteredRows = getFilteredRows();
+  const totalAmount = filteredRows.reduce((s,r)=>s+r.amount,0);
+
+  document.getElementById("metaTotal").textContent = rows.length.toLocaleString("ja-JP");
+  document.getElementById("metaCount").textContent = filteredRows.length.toLocaleString("ja-JP");
+
+  const isFiltered = state.months.size < MONTHS.length || state.regions.size < REGION_ORDER.length || state.categories.size < CAT_ORDER.length;
+  document.getElementById("filterStatus").textContent = isFiltered
+    ? `絞り込み中: ${fmtYen(totalAmount)}(全体の${totalAmountAll ? (totalAmount/totalAmountAll*100).toFixed(1) : "0.0"}%)`
+    : "";
+
+  document.getElementById("shareSub").textContent = isFiltered ? "表示中のデータに占める割合" : `期間合計 ${fmtYen(totalAmountAll)} に占める割合`;
+  document.getElementById("productSub").textContent = "売上金額順" + (isFiltered ? "・絞り込み中" : "・全8商品");
+  document.getElementById("regionSub").textContent = "売上金額順" + (isFiltered ? "・絞り込み中" : "・6地域");
+
+  renderStats(filteredRows);
+  renderMonthlyChart(filteredRows);
+  renderShareBar(filteredRows);
+  renderRankList("productRank", filteredRows, "product", "var(--accent)");
+  renderRankList("regionRank", filteredRows, "region", "var(--accent)");
+}
+
+document.getElementById("monthlyLegend").innerHTML = CAT_ORDER.map(c => `
+  <div class="item"><span class="swatch" style="background:${CAT_COLOR[c]}"></span>${c}</div>
+`).join("");
+
+function formatPeriod(){
+  if(rows.length===0) return "データなし";
+  const dates = rows.map(r=>r.date).sort();
+  const first = dates[0], last = dates[dates.length-1];
+  const [fy,fm,fd] = first.split("-").map(Number);
+  const [ly,lm,ld] = last.split("-").map(Number);
+  return fy===ly ? `${fy}年${fm}月${fd}日 〜 ${lm}月${ld}日` : `${fy}年${fm}月${fd}日 〜 ${ly}年${lm}月${ld}日`;
+}
+
+async function loadFromServer(){
+  // Short timeout: if server.py isn't running (or this page is viewed as a
+  // published Artifact, which can't reach localhost at all), fall back fast.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1200);
+  const res = await fetch(API_URL, { signal: controller.signal });
+  clearTimeout(timer);
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.map(r => ({ ...r, month: r.date.slice(0,7) }));
+}
+
+async function init(){
+  const badge = document.getElementById("dataSourceBadge");
+  try {
+    rows = await loadFromServer();
+    badge.classList.remove("offline");
+    badge.innerHTML = `<span class="dot"></span>Python API から取得`;
+    document.getElementById("footerText").textContent =
+      `Pythonサーバー(/api/sales)が結合した ${rows.length.toLocaleString("ja-JP")}件の取引明細を集計・可視化。数値はすべて自動算出。`;
+  } catch(err) {
+    rows = parseCSV(CSV);
+    badge.classList.add("offline");
+    badge.innerHTML = `<span class="dot"></span>内蔵データ(サーバー未接続)`;
+    document.getElementById("footerText").textContent =
+      `売上データ.csv(${rows.length.toLocaleString("ja-JP")}件の取引明細、内蔵データ)を集計・可視化。server.py を起動すると4〜6月分も含めて自動更新されます。`;
+  }
+
+  MONTHS = [...new Set(rows.map(r=>r.month))].sort();
+  state.months = new Set(MONTHS);
+  totalAmountAll = rows.reduce((s,r)=>s+r.amount,0);
+  document.getElementById("periodText").textContent = formatPeriod();
+
+  renderChips("monthFilter", MONTHS, state.months, renderAll, monthLabel);
+  renderChips("regionFilter", REGION_ORDER, state.regions, renderAll);
+  renderChips("categoryFilter", CAT_ORDER, state.categories, renderAll);
+  renderAll();
+}
+
+init();
+
+// ---------- Drag & drop CSV import ----------
+(function(){
+  const overlay = document.getElementById("dropOverlay");
+  const toastEl = document.getElementById("toast");
+  let toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3400);
+  }
+
+  function mergeRows(newRows){
+    const seen = new Set(rows.map(r => `${r.date}|${r.product}|${r.region}|${r.qty}|${r.price}`));
+    let added = 0;
+    for(const r of newRows){
+      const key = `${r.date}|${r.product}|${r.region}|${r.qty}|${r.price}`;
+      if(!seen.has(key)){
+        seen.add(key);
+        rows.push(r);
+        added++;
+      }
+    }
+    return added;
+  }
+
+  function hasFiles(e){
+    return e.dataTransfer && Array.prototype.includes.call(e.dataTransfer.types || [], "Files");
+  }
+
+  let dragDepth = 0;
+  window.addEventListener("dragenter", e => {
+    if(!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth++;
+    overlay.hidden = false;
+  });
+  window.addEventListener("dragover", e => {
+    if(!hasFiles(e)) return;
+    e.preventDefault();
+  });
+  window.addEventListener("dragleave", e => {
+    if(!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth = Math.max(0, dragDepth-1);
+    if(dragDepth===0) overlay.hidden = true;
+  });
+  window.addEventListener("drop", async e => {
+    if(!hasFiles(e)){ return; }
+    e.preventDefault();
+    dragDepth = 0;
+    overlay.hidden = true;
+
+    const files = [...e.dataTransfer.files].filter(f => /\.csv$/i.test(f.name));
+    if(files.length===0){
+      showToast("CSVファイル(.csv)をドロップしてください");
+      return;
+    }
+
+    let totalAdded = 0;
+    const okNames = [];
+    const badNames = [];
+    for(const file of files){
+      try{
+        const text = await file.text();
+        const parsed = parseCSV(text);
+        if(parsed.length===0){ badNames.push(file.name); continue; }
+        totalAdded += mergeRows(parsed);
+        okNames.push(file.name);
+      } catch(err){
+        badNames.push(file.name);
+      }
+    }
+
+    if(totalAdded>0){
+      MONTHS = [...new Set(rows.map(r=>r.month))].sort();
+      MONTHS.filter(m => !state.months.has(m)).forEach(m => state.months.add(m));
+      totalAmountAll = rows.reduce((s,r)=>s+r.amount,0);
+      document.getElementById("periodText").textContent = formatPeriod();
+
+      const badge = document.getElementById("dataSourceBadge");
+      badge.classList.remove("offline");
+      badge.innerHTML = `<span class="dot"></span>CSVをドロップ追加(${rows.length.toLocaleString("ja-JP")}件)`;
+      document.getElementById("footerText").textContent =
+        `${okNames.join("、")} から${totalAdded.toLocaleString("ja-JP")}件を追加。現在 ${rows.length.toLocaleString("ja-JP")}件を集計・可視化中。`;
+
+      renderChips("monthFilter", MONTHS, state.months, renderAll, monthLabel);
+      renderAll();
+    }
+
+    if(totalAdded>0 && badNames.length===0){
+      showToast(`${okNames.join("、")} から${totalAdded.toLocaleString("ja-JP")}件を追加しました`);
+    } else if(totalAdded>0 && badNames.length>0){
+      showToast(`${totalAdded.toLocaleString("ja-JP")}件を追加(${badNames.join("、")} は読み込めませんでした)`);
+    } else {
+      showToast("追加できるデータがありませんでした(重複、または列の形式が一致しません)");
+    }
+  });
+})();
+
+// ---------- Quote of the day (spoken aloud) ----------
+(function(){
+  const QUOTES = [
+    { text:"商売とは、感謝に始まり感謝に終わる。", author:"松下幸之助" },
+    { text:"本日のお客様は、明日の宣伝マンである。", author:"松下幸之助" },
+    { text:"顧客に価値を提供することこそ、事業の目的である。", author:"ピーター・ドラッカー" },
+    { text:"小さな行動の積み重ねが、大きな成果を生む。", author:"本田宗一郎" },
+    { text:"継続は力なり。", author:"住岡夜晃" },
+  ];
+  const quote = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  const banner = document.getElementById("quoteBanner");
+  banner.innerHTML = `
+    <span class="quote-mark">"</span>
+    <div class="quote-body">
+      <p class="quote-text">${quote.text}</p>
+      <p class="quote-author">— ${quote.author}</p>
+    </div>
+    <div class="quote-actions">
+      <button type="button" class="quote-btn" id="quoteSpeak" title="音声で聞く" aria-label="この名言を音声で聞く">🔊</button>
+      <button type="button" class="quote-btn" id="quoteClose" title="閉じる" aria-label="名言を閉じる">✕</button>
+    </div>
+  `;
+
+  const speakBtn = document.getElementById("quoteSpeak");
+  const closeBtn = document.getElementById("quoteClose");
+
+  function speak(){
+    if(!("speechSynthesis" in window)){
+      speakBtn.title = "このブラウザは音声読み上げに対応していません";
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(`${quote.text} ${quote.author}の言葉です。`);
+    utter.lang = "ja-JP";
+    utter.rate = 0.95;
+    const jaVoice = window.speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
+    if(jaVoice) utter.voice = jaVoice;
+    utter.onstart = () => speakBtn.classList.add("speaking");
+    utter.onend = () => speakBtn.classList.remove("speaking");
+    utter.onerror = () => speakBtn.classList.remove("speaking");
+    window.speechSynthesis.speak(utter);
+  }
+
+  speakBtn.addEventListener("click", speak);
+  closeBtn.addEventListener("click", () => banner.remove());
+
+  // Try to speak automatically on open. Most browsers require a voices list to be
+  // loaded first (and some require a prior user gesture) — if autoplay is blocked,
+  // the 🔊 button above still lets the user trigger it manually.
+  if("speechSynthesis" in window){
+    if(window.speechSynthesis.getVoices().length){
+      speak();
+    } else {
+      window.speechSynthesis.addEventListener("voiceschanged", speak, { once:true });
+    }
+  }
+})();
+</script>
