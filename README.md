@@ -10,18 +10,31 @@ GitHub Pages上で `index.html` が同じフォルダのCSV3ファイルを読�
 
 ## ファイル構成
 
-- `index.html` — GitHub Pages公開用。同じフォルダのCSV3ファイルを直接fetchして表示する静的版。
+- `index.html` — GitHub Pages公開用。同じフォルダのCSV3ファイルを直接fetchして表示する静的版。バックエンドがないため、AIチャットはここでは使えません。
 - `売上ダッシュボード.html` — スタンドアロン版。ダブルクリックでブラウザ表示できる単一HTMLファイル。`server.py` が起動していればPython API からデータを取得し、未起動なら内蔵データ(1〜3月分)にフォールバックします。CSVファイルをドラッグ&ドロップして追加することもできます。
 - `server.py` — 標準ライブラリのみで書かれたHTTPサーバー(pip install不要)。複数のCSVを結合して `/api/sales` にJSONで配信し、`server_dashboard.html` を `/` で配信します。
 - `server_dashboard.html` — サーバー配信専用のダッシュボード。常に `/api/sales` からデータを取得します。
 - `売上データ.csv` / `売上データ_4-6月.csv` / `売上データ_7月.csv` — デモ用の売上データ(2026年1〜7月分)。
+- `chat_backend.py` — AIチャット用のFastAPIバックエンド。OpenAI APIキーは `.env` からのみ読み込み、フロントエンドには一切渡しません。
+- `requirements.txt` — チャット機能に必要なPythonパッケージ(fastapi, uvicorn, openai, python-dotenv)。
+- `.env.example` — `.env` のひな形。実際のキーは各自の `.env` に書き、コミットしないでください(`.gitignore` 済み)。
 
 ## 使い方
+
+### ダッシュボードのみ
 
 ```bash
 python server.py
 ```
 
-起動後、ブラウザで http://127.0.0.1:8000 を開いてください。
+起動後、ブラウザで http://127.0.0.1:8000 を開いてください。または `売上ダッシュボード.html` を直接ダブルクリックして開くこともできます。
 
-または `売上ダッシュボード.html` を直接ダブルクリックして開くこともできます。
+### AIチャットも使う場合
+
+```bash
+pip install -r requirements.txt
+copy .env.example .env   # .env を開き、OPENAI_API_KEY に自分のキーを設定
+python chat_backend.py   # 別ターミナルで実行(ポート8001)
+```
+
+`server.py`(または `売上ダッシュボード.html` を直接開いた場合)と `chat_backend.py` の両方を起動した状態で、ダッシュボード右下の💬ボタンから質問できます。`.env` はコミットされません。`chat_backend.py` を止めても他の機能はそのまま動きます。
